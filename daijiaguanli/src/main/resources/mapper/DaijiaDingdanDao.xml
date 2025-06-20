@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DaijiaDingdanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.siji_id as sijiId
+        ,a.daijia_dingdan_uuid_number as daijiaDingdanUuidNumber
+        ,a.daijia_dingdan_chufa_address as daijiaDingdanChufaAddress
+        ,a.daijia_dingdan_qianwang_address as daijiaDingdanQianwangAddress
+        ,a.daijia_dingdan_yanse as daijiaDingdanYanse
+        ,a.daijia_dingdan_pinpai as daijiaDingdanPinpai
+        ,a.daijia_dingdan_photo as daijiaDingdanPhoto
+        ,a.daijia_dingdan_chepaihao as daijiaDingdanChepaihao
+        ,a.daijia_dingdan_lianxiren as daijiaDingdanLianxiren
+        ,a.daijia_dingdan_phone as daijiaDingdanPhone
+        ,a.daijia_dingdan_jine as daijiaDingdanJine
+        ,a.insert_time as insertTime
+        ,a.daijia_dingdan_content as daijiaDingdanContent
+        ,a.daijia_dingdan_types as daijiaDingdanTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DaijiaDingdanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,siji.siji_uuid_number as sijiUuidNumber
+        ,siji.siji_name as sijiName
+        ,siji.siji_phone as sijiPhone
+        ,siji.siji_id_number as sijiIdNumber
+        ,siji.siji_photo as sijiPhoto
+        ,siji.siji_email as sijiEmail
+        ,siji.new_money as newMoney
+        ,yonghu.yonghu_uuid_number as yonghuUuidNumber
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+
+        FROM daijia_dingdan  a
+        left JOIN siji siji ON a.siji_id = siji.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.sijiId != null and params.sijiId != ''">
+                and (
+                    a.siji_id = #{params.sijiId} or a.siji_id is null
+                )
+            </if>
+            <if test=" params.daijiaDingdanUuidNumber != '' and params.daijiaDingdanUuidNumber != null and params.daijiaDingdanUuidNumber != 'null' ">
+                and a.daijia_dingdan_uuid_number like CONCAT('%',#{params.daijiaDingdanUuidNumber},'%')
+            </if>
+            <if test=" params.daijiaDingdanChufaAddress != '' and params.daijiaDingdanChufaAddress != null and params.daijiaDingdanChufaAddress != 'null' ">
+                and a.daijia_dingdan_chufa_address like CONCAT('%',#{params.daijiaDingdanChufaAddress},'%')
+            </if>
+            <if test=" params.daijiaDingdanQianwangAddress != '' and params.daijiaDingdanQianwangAddress != null and params.daijiaDingdanQianwangAddress != 'null' ">
+                and a.daijia_dingdan_qianwang_address like CONCAT('%',#{params.daijiaDingdanQianwangAddress},'%')
+            </if>
+            <if test=" params.daijiaDingdanYanse != '' and params.daijiaDingdanYanse != null and params.daijiaDingdanYanse != 'null' ">
+                and a.daijia_dingdan_yanse like CONCAT('%',#{params.daijiaDingdanYanse},'%')
+            </if>
+            <if test=" params.daijiaDingdanPinpai != '' and params.daijiaDingdanPinpai != null and params.daijiaDingdanPinpai != 'null' ">
+                and a.daijia_dingdan_pinpai like CONCAT('%',#{params.daijiaDingdanPinpai},'%')
+            </if>
+            <if test=" params.daijiaDingdanChepaihao != '' and params.daijiaDingdanChepaihao != null and params.daijiaDingdanChepaihao != 'null' ">
+                and a.daijia_dingdan_chepaihao like CONCAT('%',#{params.daijiaDingdanChepaihao},'%')
+            </if>
+            <if test=" params.daijiaDingdanLianxiren != '' and params.daijiaDingdanLianxiren != null and params.daijiaDingdanLianxiren != 'null' ">
+                and a.daijia_dingdan_lianxiren like CONCAT('%',#{params.daijiaDingdanLianxiren},'%')
+            </if>
+            <if test=" params.daijiaDingdanPhone != '' and params.daijiaDingdanPhone != null and params.daijiaDingdanPhone != 'null' ">
+                and a.daijia_dingdan_phone like CONCAT('%',#{params.daijiaDingdanPhone},'%')
+            </if>
+            <if test="params.daijiaDingdanJineStart != null ">
+                <![CDATA[  and a.daijia_dingdan_jine >= #{params.daijiaDingdanJineStart}   ]]>
+            </if>
+            <if test="params.daijiaDingdanJineEnd != null ">
+                <![CDATA[  and a.daijia_dingdan_jine <= #{params.daijiaDingdanJineEnd}   ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.daijiaDingdanContent != '' and params.daijiaDingdanContent != null and params.daijiaDingdanContent != 'null' ">
+                and a.daijia_dingdan_content like CONCAT('%',#{params.daijiaDingdanContent},'%')
+            </if>
+            <if test="params.daijiaDingdanTypes != null and params.daijiaDingdanTypes != ''">
+                and a.daijia_dingdan_types = #{params.daijiaDingdanTypes}
+            </if>
+
+                <!-- 判断司机的id不为空 -->
+            <if test=" params.sijiIdNotNull != '' and params.sijiIdNotNull != null and params.sijiIdNotNull != 'null' ">
+                and a.siji_id IS NOT NULL
+            </if>
+            <if test=" params.sijiUuidNumber != '' and params.sijiUuidNumber != null and params.sijiUuidNumber != 'null' ">
+                and siji.siji_uuid_number like CONCAT('%',#{params.sijiUuidNumber},'%')
+            </if>
+            <if test=" params.sijiName != '' and params.sijiName != null and params.sijiName != 'null' ">
+                and siji.siji_name like CONCAT('%',#{params.sijiName},'%')
+            </if>
+            <if test=" params.sijiPhone != '' and params.sijiPhone != null and params.sijiPhone != 'null' ">
+                and siji.siji_phone like CONCAT('%',#{params.sijiPhone},'%')
+            </if>
+            <if test=" params.sijiIdNumber != '' and params.sijiIdNumber != null and params.sijiIdNumber != 'null' ">
+                and siji.siji_id_number like CONCAT('%',#{params.sijiIdNumber},'%')
+            </if>
+            <if test=" params.sijiEmail != '' and params.sijiEmail != null and params.sijiEmail != 'null' ">
+                and siji.siji_email like CONCAT('%',#{params.sijiEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and siji.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and siji.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuUuidNumber != '' and params.yonghuUuidNumber != null and params.yonghuUuidNumber != 'null' ">
+                and yonghu.yonghu_uuid_number like CONCAT('%',#{params.yonghuUuidNumber},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

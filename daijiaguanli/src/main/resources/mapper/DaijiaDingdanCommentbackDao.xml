@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DaijiaDingdanCommentbackDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.daijia_dingdan_id as daijiaDingdanId
+        ,a.yonghu_id as yonghuId
+        ,a.daijia_dingdan_commentback_pingfen_number as daijiaDingdanCommentbackPingfenNumber
+        ,a.daijia_dingdan_commentback_text as daijiaDingdanCommentbackText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DaijiaDingdanCommentbackView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,daijiaDingdan.yonghu_id as daijiaDingdanYonghuId
+        ,daijiaDingdan.siji_id as daijiaDingdanSijiId
+        ,daijiaDingdan.daijia_dingdan_uuid_number as daijiaDingdanUuidNumber
+        ,daijiaDingdan.daijia_dingdan_chufa_address as daijiaDingdanChufaAddress
+        ,daijiaDingdan.daijia_dingdan_qianwang_address as daijiaDingdanQianwangAddress
+        ,daijiaDingdan.daijia_dingdan_yanse as daijiaDingdanYanse
+        ,daijiaDingdan.daijia_dingdan_pinpai as daijiaDingdanPinpai
+        ,daijiaDingdan.daijia_dingdan_photo as daijiaDingdanPhoto
+        ,daijiaDingdan.daijia_dingdan_chepaihao as daijiaDingdanChepaihao
+        ,daijiaDingdan.daijia_dingdan_lianxiren as daijiaDingdanLianxiren
+        ,daijiaDingdan.daijia_dingdan_phone as daijiaDingdanPhone
+        ,daijiaDingdan.daijia_dingdan_jine as daijiaDingdanJine
+        ,daijiaDingdan.daijia_dingdan_content as daijiaDingdanContent
+        ,daijiaDingdan.daijia_dingdan_types as daijiaDingdanTypes
+        ,yonghu.yonghu_uuid_number as yonghuUuidNumber
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+
+        FROM daijia_dingdan_commentback  a
+        left JOIN daijia_dingdan daijiaDingdan ON a.daijia_dingdan_id = daijiaDingdan.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.daijiaDingdanId != null and params.daijiaDingdanId != ''">
+                and (
+                    a.daijia_dingdan_id = #{params.daijiaDingdanId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                    or daijiaDingdan.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.daijiaDingdanCommentbackPingfenNumberStart != null and params.daijiaDingdanCommentbackPingfenNumberStart != ''">
+                <![CDATA[  and a.daijia_dingdan_commentback_pingfen_number >= #{params.daijiaDingdanCommentbackPingfenNumberStart}   ]]>
+            </if>
+            <if test="params.daijiaDingdanCommentbackPingfenNumberEnd != null and params.daijiaDingdanCommentbackPingfenNumberEnd != ''">
+                <![CDATA[  and a.daijia_dingdan_commentback_pingfen_number <= #{params.daijiaDingdanCommentbackPingfenNumberEnd}   ]]>
+            </if>
+             <if test="params.daijiaDingdanCommentbackPingfenNumber != null and params.daijiaDingdanCommentbackPingfenNumber != ''">
+                and a.daijia_dingdan_commentback_pingfen_number = #{params.daijiaDingdanCommentbackPingfenNumber}
+             </if>
+            <if test=" params.daijiaDingdanCommentbackText != '' and params.daijiaDingdanCommentbackText != null and params.daijiaDingdanCommentbackText != 'null' ">
+                and a.daijia_dingdan_commentback_text like CONCAT('%',#{params.daijiaDingdanCommentbackText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断代驾订单的id不为空 -->
+            <if test=" params.daijiaDingdanIdNotNull != '' and params.daijiaDingdanIdNotNull != null and params.daijiaDingdanIdNotNull != 'null' ">
+                and a.daijia_dingdan_id IS NOT NULL
+            </if>
+            <if test="params.sijiId != null  and params.sijiId != ''">
+                and daijiaDingdan.siji_id = #{params.sijiId}
+            </if>
+            <if test=" params.daijiaDingdanUuidNumber != '' and params.daijiaDingdanUuidNumber != null and params.daijiaDingdanUuidNumber != 'null' ">
+                and daijiaDingdan.daijia_dingdan_uuid_number like CONCAT('%',#{params.daijiaDingdanUuidNumber},'%')
+            </if>
+            <if test=" params.daijiaDingdanChufaAddress != '' and params.daijiaDingdanChufaAddress != null and params.daijiaDingdanChufaAddress != 'null' ">
+                and daijiaDingdan.daijia_dingdan_chufa_address like CONCAT('%',#{params.daijiaDingdanChufaAddress},'%')
+            </if>
+            <if test=" params.daijiaDingdanQianwangAddress != '' and params.daijiaDingdanQianwangAddress != null and params.daijiaDingdanQianwangAddress != 'null' ">
+                and daijiaDingdan.daijia_dingdan_qianwang_address like CONCAT('%',#{params.daijiaDingdanQianwangAddress},'%')
+            </if>
+            <if test=" params.daijiaDingdanYanse != '' and params.daijiaDingdanYanse != null and params.daijiaDingdanYanse != 'null' ">
+                and daijiaDingdan.daijia_dingdan_yanse like CONCAT('%',#{params.daijiaDingdanYanse},'%')
+            </if>
+            <if test=" params.daijiaDingdanPinpai != '' and params.daijiaDingdanPinpai != null and params.daijiaDingdanPinpai != 'null' ">
+                and daijiaDingdan.daijia_dingdan_pinpai like CONCAT('%',#{params.daijiaDingdanPinpai},'%')
+            </if>
+            <if test=" params.daijiaDingdanChepaihao != '' and params.daijiaDingdanChepaihao != null and params.daijiaDingdanChepaihao != 'null' ">
+                and daijiaDingdan.daijia_dingdan_chepaihao like CONCAT('%',#{params.daijiaDingdanChepaihao},'%')
+            </if>
+            <if test=" params.daijiaDingdanLianxiren != '' and params.daijiaDingdanLianxiren != null and params.daijiaDingdanLianxiren != 'null' ">
+                and daijiaDingdan.daijia_dingdan_lianxiren like CONCAT('%',#{params.daijiaDingdanLianxiren},'%')
+            </if>
+            <if test=" params.daijiaDingdanPhone != '' and params.daijiaDingdanPhone != null and params.daijiaDingdanPhone != 'null' ">
+                and daijiaDingdan.daijia_dingdan_phone like CONCAT('%',#{params.daijiaDingdanPhone},'%')
+            </if>
+            <if test="params.daijiaDingdanJineStart != null ">
+                <![CDATA[  and daijiaDingdan.daijia_dingdan_jine >= #{params.daijiaDingdanJineStart}   ]]>
+            </if>
+            <if test="params.daijiaDingdanJineEnd != null ">
+                <![CDATA[  and daijiaDingdan.daijia_dingdan_jine <= #{params.daijiaDingdanJineEnd}   ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(daijiaDingdan.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(daijiaDingdan.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.daijiaDingdanContent != '' and params.daijiaDingdanContent != null and params.daijiaDingdanContent != 'null' ">
+                and daijiaDingdan.daijia_dingdan_content like CONCAT('%',#{params.daijiaDingdanContent},'%')
+            </if>
+            <if test="params.daijiaDingdanTypes != null  and params.daijiaDingdanTypes != ''">
+                and daijiaDingdan.daijia_dingdan_types = #{params.daijiaDingdanTypes}
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuUuidNumber != '' and params.yonghuUuidNumber != null and params.yonghuUuidNumber != 'null' ">
+                and yonghu.yonghu_uuid_number like CONCAT('%',#{params.yonghuUuidNumber},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
